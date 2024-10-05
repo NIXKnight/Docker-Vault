@@ -3,6 +3,7 @@ services:
     image: "postgres:${POSTGRESQL_TAG:-16.4}-bookworm"
     volumes:
       - postgresql_data:/var/lib/postgresql/data
+      - ./docker-compose.d/postgresql/init.sh:/docker-entrypoint-initdb.d/init.sh
     environment:
       POSTGRES_PASSWORD: "password"
       POSTGRES_USER: "master"
@@ -29,6 +30,16 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    depends_on:
+      postgresql:
+        condition: service_healthy
+  vault:
+    image: "hashicorp/vault:${VAULT_TAG:-1.17.2}"
+    command: vault server -config=/vault/config/config.hcl
+    volumes:
+      - ./docker-compose.d/vault/config.hcl:/vault/config/config.hcl
+    ports:
+      - "8200:8200"
     depends_on:
       postgresql:
         condition: service_healthy
