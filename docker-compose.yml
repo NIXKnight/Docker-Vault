@@ -1,0 +1,39 @@
+services:
+  postgresql:
+    image: "postgres:${POSTGRESQL_TAG:-16.4}-bookworm"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: "master"
+      POSTGRES_DB: "vault"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U master -d vault || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  pgadmin:
+    image: "dpage/pgadmin4:${PGADMIN_TAG:-8.12.0}"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "master@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "masterpassword"
+      PGADMIN_LISTEN_PORT: 5050
+    volumes:
+      - "pgadmin_data:/var/lib/pgadmin"
+    ports:
+      - "5050:5050"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "5050"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      postgresql:
+        condition: service_healthy
+volumes:
+  postgresql_data:
+    driver: local
+  pgadmin_data:
+    driver: local
