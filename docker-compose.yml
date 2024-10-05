@@ -43,6 +43,18 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
+  vault-auto-unseal:
+    image: "hashicorp/vault:${VAULT_TAG:-1.17.2}"
+    environment:
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_INIT_DATA_JSON_FILE: "/tmp/vault/init.json"
+    user: root
+    command: "/usr/local/bin/auto-unseal.sh"
+    volumes:
+      - "./docker-compose.d/vault/auto-unseal.sh:/usr/local/bin/auto-unseal.sh"
+      - "./docker-compose.d/vault:/tmp/vault"
+    depends_on:
+      - vault
 volumes:
   postgresql_data:
     driver: local
