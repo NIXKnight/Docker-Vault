@@ -1,1 +1,3 @@
 docker-compose.d/vault/init.json
+opentofu/.terraform*
+opentofu/terraform.tfstate*
