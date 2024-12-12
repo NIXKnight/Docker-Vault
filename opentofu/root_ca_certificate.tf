@@ -60,3 +60,14 @@ resource "vault_pki_secret_backend_role" "nixknight_ca_intermediate" {
   max_ttl = "315360000"
   require_cn = false
 }
+
+
+# Create certificate for VM
+resource "vault_pki_secret_backend_cert" "vm1" {
+  issuer_ref  = vault_pki_secret_backend_issuer.nixknight_ca_intermediate.issuer_ref
+  backend     = vault_pki_secret_backend_role.nixknight_ca_intermediate.backend
+  name        = vault_pki_secret_backend_role.nixknight_ca_intermediate.name
+  common_name = "vm1.vms.nixknight.net"
+  ttl         = 3600
+  revoke     = true
+}
